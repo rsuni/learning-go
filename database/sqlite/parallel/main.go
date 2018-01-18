@@ -32,22 +32,23 @@ func main() {
 	}
 
 	timeStart := time.Now()
-	tx, err := db.Begin()
-	checkErr(err)
+	//tx, err := db.Begin()//without transaction database is even locked,
+	//checkErr(err)
 
-	stmt, err := tx.Prepare("insert into foo(id, name) values(?, ?)")
+	//stmt, err := tx.Prepare("insert into foo(id, name) values(?, ?)")
+	stmt, err := db.Prepare("insert into foo(id, name) values(?, ?)")
 	checkErr(err)
 	defer stmt.Close()
 
-	count := 1000000 //1000000 parallel inserts block whole computer
+	count := 100 //1000000 parallel inserts block whole computer
 	wg.Add(count)
 	for i := 0; i < count; i++ {
 		//_, err = stmt.Exec(i, fmt.Sprintf("???????%03d", i))
 		//checkErr(err)
-		go insert(stmt, i)
+		insert(stmt, i)
 	}
 	wg.Wait()
-	tx.Commit()
+	//tx.Commit()
 	timeEnd := time.Now()
 
 	delta := timeEnd.Sub(timeStart)
